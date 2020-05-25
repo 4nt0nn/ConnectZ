@@ -12,9 +12,10 @@ import {
 } from "@material-ui/core";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import LockIcon from "@material-ui/icons/Lock";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { tryToAuthenticate } from "../../store/action/authentication";
 import { useFirebase } from "react-redux-firebase";
+import { Redirect } from "react-router";
 
 /**
  * Styling variable which calls a function
@@ -52,6 +53,7 @@ const SignIn = () => {
   const [credentials, setCredentials] = useState({});
   const dispatch = useDispatch();
   const firebase = useFirebase();
+  const auth = useSelector((state) => state.firebase.auth);
 
   const boundSignInHandler = () =>
     dispatch(tryToAuthenticate(firebase, credentials));
@@ -64,7 +66,7 @@ const SignIn = () => {
     e.preventDefault();
     boundSignInHandler();
   };
-
+  if (auth.uid != null) return <Redirect to={"/lobby"} />;
   return (
     <div className={classes.root}>
       <Paper elevation={3}>

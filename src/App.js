@@ -1,14 +1,17 @@
 import React from "react";
+import { BrowserRouter } from "react-router-dom";
 import AuthIsLoaded from "./components/auth/AuthIsLoaded";
-import SignIn from "./components/auth/SignIn";
+import Router from "./components/router";
 
 function App() {
   return (
-    <AuthIsLoaded>
-      <div className={"App"}>
-        <SignIn />
-      </div>
-    </AuthIsLoaded>
+    <BrowserRouter>
+      <AuthIsLoaded>
+        <div className={"App"}>
+          <Router />
+        </div>
+      </AuthIsLoaded>
+    </BrowserRouter>
   );
 }
 
