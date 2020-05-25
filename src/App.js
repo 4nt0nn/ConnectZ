@@ -1,11 +1,14 @@
 import React from "react";
-import NavBar from "./components/layout/NavBar";
+import AuthIsLoaded from "./components/auth/AuthIsLoaded";
+import SignIn from "./components/auth/SignIn";
 
 function App() {
   return (
-    <div className="App">
-      <NavBar />
-    </div>
+    <AuthIsLoaded>
+      <div className={"App"}>
+        <SignIn />
+      </div>
+    </AuthIsLoaded>
   );
 }
 

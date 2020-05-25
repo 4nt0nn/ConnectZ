@@ -4,7 +4,7 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import { getFirebase } from "react-redux-firebase";
 import { getFirestore } from "redux-firestore";
 
-import rootReducer from "../store/reducers/root";
+import combineReducers from "../store/reducer/root";
 
 /**
  * Configuration function for handling all
@@ -32,7 +32,7 @@ export default function storeConfig(preloadedState) {
   const enhancers = [middlewareEnhancer];
   const composedEnhancers = composeWithDevTools(...enhancers);
 
-  const store = createStore(rootReducer, preloadedState, composedEnhancers);
+  const store = createStore(combineReducers, preloadedState, composedEnhancers);
 
   return store;
 }
