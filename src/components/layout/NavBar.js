@@ -19,6 +19,8 @@ import { useDispatch } from "react-redux";
 import { tryToSignOut } from "../../store/action/authentication";
 import { useFirebase } from "react-redux-firebase";
 
+const drawerWidth = 240;
+
 /**
  * Styling variable which calls a function
  * makeStyles that returns a object with
@@ -28,8 +30,17 @@ const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
   },
+  appBar: {
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: drawerWidth,
+    },
+  },
   menuButton: {
     marginRight: theme.spacing(2),
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
   },
   title: {
     display: "none",
@@ -93,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
  * the navigation bar with searchbar, alerts icon
  * and profile settings dropdown.
  */
-const NavBar = () => {
+const NavBar = (props) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const firebase = useFirebase();
@@ -173,13 +184,14 @@ const NavBar = () => {
 
   return (
     <div className={classes.grow}>
-      <AppBar position="static">
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <IconButton
             edge="start"
             className={classes.menuButton}
             color="inherit"
             aria-label="open drawer"
+            onClick={props.handleDrawerToggle}
           >
             <MenuIcon />
           </IconButton>
