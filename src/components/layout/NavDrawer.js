@@ -8,11 +8,15 @@ import {
   ListItemIcon,
   ListItemText,
   Collapse,
+  Button,
+  Icon,
 } from "@material-ui/core";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import StarBorder from "@material-ui/icons/StarBorder";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { useSelector } from "react-redux";
+import { useFirestoreConnect } from "react-redux-firebase";
 
 const drawerWidth = 240;
 
@@ -61,11 +65,12 @@ const NavDrawer = (props) => {
     { id: 2, name: "Matt" },
     { id: 3, name: "Diane" },
   ];
-  const rooms = [
-    { id: 1, title: "room 1" },
-    { id: 2, title: "room 2" },
-    { id: 3, title: "room 3" },
-  ];
+  const fsRooms = useSelector((state) => state.firestore.ordered.rooms);
+  const fsUsers = useSelector((state) => state.firestore.ordered.users);
+  const auth = useSelector((state) => state.firebase.auth);
+
+  useFirestoreConnect(() => [{ collection: "rooms" }]);
+  useFirestoreConnect(() => [{ collection: "users" }]);
 
   const handleUserList = () => {
     setOpenUsers(!openUsers);
@@ -88,19 +93,60 @@ const NavDrawer = (props) => {
       </List>
       <Collapse in={openRooms} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {rooms.map((room) => (
-            <ListItem
-              key={room.id}
-              button
-              className={classes.nested}
-              onClick={() => props.toggleRoom(room)}
+          <ListItem
+            button
+            className={classes.nested}
+            onClick={() =>
+              props.handleModalOpen({
+                title: "Skapa nytt rum",
+                fields: [
+                  { id: "title", icon: "local_offer", select: false },
+                  {
+                    id: "users",
+                    select: true,
+                    options: fsUsers.filter((user) => user.id !== auth.uid),
+                  },
+                ],
+                buttons: [
+                  {
+                    text: "Lägg till",
+                    type: "submit",
+                    color: "primary",
+                    abort: false,
+                  },
+                  {
+                    text: "Avbryt",
+                    type: "reset",
+                    color: "secondary",
+                    abort: true,
+                  },
+                ],
+              })
+            }
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              endIcon={<Icon>add</Icon>}
             >
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText primary={`#${room.title}`} />
-            </ListItem>
-          ))}
+              Skapa nytt
+            </Button>
+          </ListItem>
+          {fsRooms &&
+            fsRooms.map((room) => (
+              <ListItem
+                key={room.id}
+                button
+                className={classes.nested}
+                onClick={() => props.toggleRoom(room)}
+              >
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText primary={`#${room.title}`} />
+              </ListItem>
+            ))}
         </List>
       </Collapse>
       <Divider />
@@ -114,6 +160,39 @@ const NavDrawer = (props) => {
       </List>
       <Collapse in={openUsers} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
+          <ListItem
+            button
+            className={classes.nested}
+            onClick={() =>
+              props.handleModalOpen({
+                title: "Ange ny användare",
+                fields: [{ id: "email", icon: "email", select: false }],
+                buttons: [
+                  {
+                    text: "Lägg till",
+                    type: "submit",
+                    color: "primary",
+                    abort: false,
+                  },
+                  {
+                    text: "Avbryt",
+                    type: "reset",
+                    color: "secondary",
+                    abort: true,
+                  },
+                ],
+              })
+            }
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              endIcon={<Icon>add</Icon>}
+            >
+              Lägg till ny
+            </Button>
+          </ListItem>
           {users.map((user) => (
             <ListItem key={user.id} button className={classes.nested}>
               <ListItemIcon>
@@ -131,7 +210,6 @@ const NavDrawer = (props) => {
     window !== undefined ? () => window().document.body : undefined;
   return (
     <nav className={classes.drawer} aria-label="mailbox folders">
-      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
       <Hidden smUp implementation="css">
         <Drawer
           container={container}
@@ -143,7 +221,7 @@ const NavDrawer = (props) => {
             paper: classes.drawerPaper,
           }}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
         >
           {drawer}
