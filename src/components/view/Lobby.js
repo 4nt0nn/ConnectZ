@@ -10,6 +10,7 @@ import NavDrawer from "../layout/NavDrawer";
 import CustomModal from "../common/CustomModal";
 
 import { tryToCreateRoom } from "../../store/action/room";
+import Room from "./Room";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,8 +19,11 @@ const useStyles = makeStyles((theme) => ({
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
   content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
+    flexGrow: 2000,
+    padding: theme.spacing(2),
+  },
+  lobbyTitle: {
+    textAlign: "center",
   },
 }));
 
@@ -81,14 +85,22 @@ const Lobby = () => {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         {room != null ? (
-          <p>This is where the room should be {room.title}</p>
+          <Room room={room} />
         ) : (
           <Fragment>
             {" "}
-            <Typography variant={"h2"} component={"h3"}>
+            <Typography
+              className={classes.lobbyTitle}
+              variant={"h2"}
+              component={"h3"}
+            >
               Welcome to the lobby
             </Typography>
-            <Typography paragraph variant={"subtitle1"}>
+            <Typography
+              className={classes.lobbyTitle}
+              paragraph
+              variant={"subtitle1"}
+            >
               Select a room from the menu on your left or create a new one.
             </Typography>
           </Fragment>

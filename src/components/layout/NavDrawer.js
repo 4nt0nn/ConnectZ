@@ -60,13 +60,8 @@ const NavDrawer = (props) => {
   const [openUsers, setOpenUsers] = useState(false);
   const [openRooms, setOpenRooms] = useState(false);
 
-  const users = [
-    { id: 1, name: "Dave" },
-    { id: 2, name: "Matt" },
-    { id: 3, name: "Diane" },
-  ];
-  const fsRooms = useSelector((state) => state.firestore.ordered.rooms);
-  const fsUsers = useSelector((state) => state.firestore.ordered.users);
+  const rooms = useSelector((state) => state.firestore.ordered.rooms);
+  const users = useSelector((state) => state.firestore.ordered.users);
   const auth = useSelector((state) => state.firebase.auth);
 
   useFirestoreConnect(() => [{ collection: "rooms" }]);
@@ -104,7 +99,7 @@ const NavDrawer = (props) => {
                   {
                     id: "users",
                     select: true,
-                    options: fsUsers.filter((user) => user.id !== auth.uid),
+                    options: users.filter((user) => user.id !== auth.uid),
                   },
                 ],
                 buttons: [
@@ -133,8 +128,8 @@ const NavDrawer = (props) => {
               Skapa nytt
             </Button>
           </ListItem>
-          {fsRooms &&
-            fsRooms.map((room) => (
+          {rooms &&
+            rooms.map((room) => (
               <ListItem
                 key={room.id}
                 button
@@ -193,14 +188,15 @@ const NavDrawer = (props) => {
               Lägg till ny
             </Button>
           </ListItem>
-          {users.map((user) => (
-            <ListItem key={user.id} button className={classes.nested}>
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText primary={user.name} />
-            </ListItem>
-          ))}
+          {users &&
+            users.map((user) => (
+              <ListItem key={user.id} button className={classes.nested}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText primary={user.name} />
+              </ListItem>
+            ))}
         </List>
       </Collapse>
     </div>
@@ -213,7 +209,7 @@ const NavDrawer = (props) => {
       <Hidden smUp implementation="css">
         <Drawer
           container={container}
-          variant="temporary"
+          variant={"temporary"}
           anchor={theme.direction === "rtl" ? "right" : "left"}
           open={props.mobileOpen}
           onClose={props.handleDrawerToggle}
