@@ -27,6 +27,7 @@ import {
   useFirebase,
 } from "react-redux-firebase";
 import { tryToSendMessage } from "../../store/action/event";
+import Video from "./Video";
 
 const useStyles = makeStyles((theme) => ({
   margin: {
@@ -74,18 +75,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     alignItems: "center",
   },
-  videoWindow: {
-    color: "#ffffff",
-    width: "33%",
-    height: "45vh",
-    backgroundColor: "#000000",
-    position: "absolute",
-    top: "80px",
-    right: "10px",
-    borderRadius: "10px",
-    border: "2px solid #3f51b5",
-    padding: "5px",
-  },
   roomTitle: {
     textAlign: "center",
   },
@@ -130,7 +119,6 @@ const Room = (props) => {
   };
 
   const handleNewVideoSession = () => {
-    console.log("This should toggle the video box");
     setVideo(!video);
   };
 
@@ -198,7 +186,6 @@ const Room = (props) => {
                 : ""
             )}
         </div>
-
         <ButtonGroup
           variant="contained"
           aria-label="contained primary button group"
@@ -260,7 +247,9 @@ const Room = (props) => {
           />
         </FormControl>
       </Grid>
-      {video ? <div className={classes.videoWindow}>VideoBox</div> : null}
+      {video ? (
+        <Video users={users} handleCancel={handleNewVideoSession} />
+      ) : null}
     </Fragment>
   );
 };
