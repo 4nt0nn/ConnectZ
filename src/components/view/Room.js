@@ -129,6 +129,8 @@ const Room = (props) => {
                     direction={"up"}
                     in={true}
                     timeout={500}
+                    unmountOnExit
+                    mountOnEnter
                   >
                     <div
                       className={
