@@ -12,9 +12,14 @@ import {
   Paper,
   Slide,
   Avatar,
+  Fab,
+  ButtonGroup,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import ChatIcon from "@material-ui/icons/Chat";
+import VideocamIcon from "@material-ui/icons/Videocam";
+import PeopleIcon from "@material-ui/icons/People";
+import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useFirestoreConnect,
@@ -24,10 +29,6 @@ import {
 import { tryToSendMessage } from "../../store/action/event";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
   margin: {
     margin: theme.spacing(1),
   },
@@ -38,8 +39,8 @@ const useStyles = makeStyles((theme) => ({
     width: "15ch",
   },
   chatContainer: {
-    height: "76vh",
-    width: "90%",
+    height: "71vh",
+    width: "60%",
     padding: theme.spacing(1),
     overflow: "hidden",
     overflowY: "scroll",
@@ -73,10 +74,26 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     alignItems: "center",
   },
+  videoWindow: {
+    color: "#ffffff",
+    width: "33%",
+    height: "45vh",
+    backgroundColor: "#000000",
+    position: "absolute",
+    top: "80px",
+    right: "10px",
+    borderRadius: "10px",
+    border: "2px solid #3f51b5",
+    padding: "5px",
+  },
+  roomTitle: {
+    textAlign: "center",
+  },
 }));
 
 const Room = (props) => {
   const [message, setMessage] = useState("");
+  const [video, setVideo] = useState(false);
   const classes = useStyles();
   const dispatch = useDispatch();
   const firestore = useFirestore();
@@ -108,86 +125,143 @@ const Room = (props) => {
     setMessage("");
   };
 
+  const handleFileUpload = () => {
+    console.log("This should open a file selection window");
+  };
+
+  const handleNewVideoSession = () => {
+    console.log("This should toggle the video box");
+    setVideo(!video);
+  };
+
+  const handleUserList = () => {
+    console.log("This should open a list of the users in the room");
+  };
+
   const getUserAndMessage = (message) => {
     let user = users.find((user) => user.id === message.user);
     return <Avatar alt={user.name} src={user.imageUrl} />;
   };
 
   return (
-    <Grid container direction="column" justify="center" alignItems="center">
-      <Typography variant={"h4"} component={"h6"}>
+    <Fragment>
+      <Typography className={classes.roomTitle} variant={"h4"} component={"h6"}>
         # {props.room.title}
       </Typography>
-      <Divider />
-      <div className={classes.chatContainer}>
-        {events &&
-          events.map((event) =>
-            event.id === "message"
-              ? event.messages.map((message) => (
-                  <Slide
-                    key={message.sentAt}
-                    direction={"up"}
-                    in={true}
-                    timeout={500}
-                    unmountOnExit
-                    mountOnEnter
-                  >
-                    <div
-                      className={
-                        message.user === auth.uid
-                          ? classes.myMessageWrapper
-                          : classes.otherMessageWrapper
-                      }
+      <Grid
+        container
+        direction={"column"}
+        justify={"center"}
+        alignItems={video ? "flex-start" : "center"}
+      >
+        <div className={classes.chatContainer}>
+          {events &&
+            events.map((event) =>
+              event.id === "message"
+                ? event.messages.map((message) => (
+                    <Slide
+                      key={message.sentAt}
+                      direction={"up"}
+                      in={true}
+                      timeout={500}
+                      unmountOnExit
+                      mountOnEnter
                     >
-                      {users ? getUserAndMessage(message) : ""}
-                      <Paper
-                        className={classes.messageBubble}
-                        style={
+                      <div
+                        className={
                           message.user === auth.uid
-                            ? { backgroundColor: "#3f51b5", marginLeft: "auto" }
-                            : {
-                                backgroundColor: "#212931",
-                                marginRight: "auto",
-                              }
+                            ? classes.myMessageWrapper
+                            : classes.otherMessageWrapper
                         }
-                        elevation={2}
                       >
-                        {message.content}
-                      </Paper>
-                    </div>
-                  </Slide>
-                ))
-              : ""
-          )}
-      </div>
-      <FormControl fullWidth className={classes.margin} variant={"outlined"}>
-        <InputLabel htmlFor={"message"}>Message</InputLabel>
-        <OutlinedInput
-          id={"message"}
-          value={message}
-          onChange={handleChange("message")}
-          startAdornment={
-            <InputAdornment position={"start"}>
-              <ChatIcon />
-            </InputAdornment>
-          }
-          endAdornment={
-            <InputAdornment position={"end"}>
-              <IconButton
-                onClick={handleSubmit}
-                aria-label={"toggle password visibility"}
-                edge={"end"}
-                disabled={message !== "" ? false : true}
-                color={"primary"}
-              >
-                <SendIcon />
-              </IconButton>
-            </InputAdornment>
-          }
-          labelWidth={60}
-        />
-      </FormControl>
-    </Grid>
+                        {users ? getUserAndMessage(message) : ""}
+                        <Paper
+                          className={classes.messageBubble}
+                          style={
+                            message.user === auth.uid
+                              ? {
+                                  backgroundColor: "#3f51b5",
+                                  marginLeft: "auto",
+                                }
+                              : {
+                                  backgroundColor: "#212931",
+                                  marginRight: "auto",
+                                }
+                          }
+                          elevation={2}
+                        >
+                          {message.content}
+                        </Paper>
+                      </div>
+                    </Slide>
+                  ))
+                : ""
+            )}
+        </div>
+
+        <ButtonGroup
+          variant="contained"
+          aria-label="contained primary button group"
+          disableElevation
+        >
+          <Fab
+            size="medium"
+            color="primary"
+            aria-label="video"
+            className={classes.margin}
+            onClick={handleNewVideoSession}
+          >
+            <VideocamIcon />
+          </Fab>
+          <Fab
+            size="medium"
+            color="primary"
+            aria-label="add"
+            className={classes.margin}
+            onClick={handleUserList}
+          >
+            <PeopleIcon />
+          </Fab>
+          <Fab
+            size="medium"
+            color="primary"
+            aria-label="add"
+            className={classes.margin}
+            onClick={handleFileUpload}
+          >
+            <AddPhotoAlternateIcon />
+          </Fab>
+        </ButtonGroup>
+        <FormControl fullWidth className={classes.margin} variant={"outlined"}>
+          <InputLabel htmlFor={"message"}>Message</InputLabel>
+          <OutlinedInput
+            id={"message"}
+            value={message}
+            onChange={handleChange("message")}
+            startAdornment={
+              <InputAdornment position={"start"}>
+                <ChatIcon />
+              </InputAdornment>
+            }
+            endAdornment={
+              <InputAdornment position={"end"}>
+                <IconButton
+                  onClick={handleSubmit}
+                  aria-label={"toggle password visibility"}
+                  edge={"end"}
+                  disabled={message !== "" ? false : true}
+                  color={"primary"}
+                >
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+            labelWidth={60}
+          />
+        </FormControl>
+      </Grid>
+      {video ? <div className={classes.videoWindow}>VideoBox</div> : null}
+    </Fragment>
   );
 };
 
