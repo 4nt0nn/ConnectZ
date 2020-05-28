@@ -9,17 +9,18 @@ import {
   Badge,
   MenuItem,
   Menu,
+  Avatar,
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { tryToSignOut } from "../../store/action/authentication";
 import { useFirebase } from "react-redux-firebase";
 
-const drawerWidth = 240;
+const drawerWidth = 240; // The drawer width needed for calculating the width of the appbar.
 
 /**
  * Styling variable which calls a function
@@ -104,9 +105,10 @@ const useStyles = makeStyles((theme) => ({
  * and profile settings dropdown.
  */
 const NavBar = (props) => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const firebase = useFirebase();
+  const classes = useStyles(); // variable containing our style object.
+  const dispatch = useDispatch(); // variable containing the dispatch function
+  const firebase = useFirebase(); // variable containing our instance of frebase.
+  const profile = useSelector((state) => state.firebase.profile);
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
@@ -147,7 +149,6 @@ const NavBar = (props) => {
       <MenuItem onClick={boundHandleSignOut}>Sign out</MenuItem>
     </Menu>
   );
-
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
@@ -174,7 +175,7 @@ const NavBar = (props) => {
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          <Avatar alt={profile.name} src={profile.imageUrl} />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
@@ -225,7 +226,7 @@ const NavBar = (props) => {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <AccountCircle />
+              <Avatar alt={profile.name} src={profile.imageUrl} />
             </IconButton>
           </div>
           <div className={classes.sectionMobile}>
