@@ -64,8 +64,12 @@ const NavDrawer = (props) => {
   const users = useSelector((state) => state.firestore.ordered.users);
   const auth = useSelector((state) => state.firebase.auth);
 
-  useFirestoreConnect(() => [{ collection: "rooms" }]);
-  useFirestoreConnect(() => [{ collection: "users" }]);
+  useFirestoreConnect(() => [
+    { collection: process.env.REACT_APP_COLLECTION_TWO },
+  ]);
+  useFirestoreConnect(() => [
+    { collection: process.env.REACT_APP_COLLECTION_ONE },
+  ]);
 
   const handleUserList = () => {
     setOpenUsers(!openUsers);

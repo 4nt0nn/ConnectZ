@@ -93,14 +93,16 @@ const Room = (props) => {
 
   useFirestoreConnect([
     {
-      collection: "rooms",
+      collection: process.env.REACT_APP_COLLECTION_TWO,
       doc: props.room.id,
-      subcollections: [{ collection: "events" }],
-      storeAs: "events",
+      subcollections: [{ collection: process.env.REACT_APP_COLLECTION_THREE }],
+      storeAs: process.env.REACT_APP_COLLECTION_THREE,
     },
   ]);
 
-  useFirestoreConnect(() => [{ collection: "users" }]);
+  useFirestoreConnect(() => [
+    { collection: process.env.REACT_APP_COLLECTION_ONE },
+  ]);
 
   const boundAddMessage = () =>
     dispatch(tryToSendMessage(firebase, firestore, message, props.room.id));
