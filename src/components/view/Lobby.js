@@ -1,6 +1,10 @@
 import React, { useState, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useFirestore } from "react-redux-firebase";
+import {
+  useFirestore,
+  useFirestoreConnect,
+  useFirebase,
+} from "react-redux-firebase";
 
 import { CssBaseline, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,7 +13,11 @@ import NavBar from "../layout/NavBar";
 import NavDrawer from "../layout/NavDrawer";
 import CustomModal from "../common/CustomModal";
 
-import { tryToCreateRoom } from "../../store/action/room";
+import {
+  tryToCreateRoom,
+  tryAddUserToRoom,
+  tryRemoveUserFromRoom,
+} from "../../store/action/room";
 import Room from "./Room";
 import { Redirect } from "react-router";
 
@@ -43,6 +51,7 @@ const Lobby = () => {
   const classes = useStyles(); // variable containing our style object.
   const dispatch = useDispatch(); // variable containing the dispatch function.
   const firestore = useFirestore(); // variable containing our instance of firestore.
+  const firebase = useFirebase(); // variable containing our instance of firebase.
   const [values, setValues] = useState({
     users: [],
   }); // Values variable containing the specifics needed to create a room which is sent to the "tryCreateRoom" action.
@@ -56,33 +65,69 @@ const Lobby = () => {
     buttons: [],
   }); // options state for the modal, containing the wanted fields, buttons and title.
 
-  const boundRoomCreation = () => dispatch(tryToCreateRoom(firestore, values)); // Binding the dispatch in an arrow function.
+  /**
+   * React hook that automatically listens/unListens to provided Cloud Firestore paths.
+   * used in this context to fetch the users.
+   */
+  useFirestoreConnect(() => [
+    { collection: process.env.REACT_APP_COLLECTION_ONE },
+  ]);
 
+  const users = useSelector((state) => state.firestore.ordered.users); // Variable containing our list of users fetched from our firestore state.
+
+  const boundRoomCreation = () => dispatch(tryToCreateRoom(firestore, values)); // Binding the dispatch of the room creation action in an arrow function.
+
+  // Binding the dispatch of adding a member to a room action in an arrow function.
+  const boundAddMember = () => {
+    dispatch(tryAddUserToRoom(firestore, firebase, room.id, values.users));
+    setRoom({ ...room, users: room.users.concat(values.users) });
+  };
+
+  // Binding the dispatch of removing a member to a room action in an arrow function.
+  const boundRemoveMember = (userId) => {
+    dispatch(tryRemoveUserFromRoom(firestore, firebase, room.id, userId));
+    setRoom({ ...room, users: room.users.filter((user) => user !== userId) });
+    handleModalClose();
+  };
+
+  // Arrow function that handles the state change for our mobile view drawer.
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  }; // Arrow function that handles the state change for our mobile view drawer.
+  };
 
+  // Arrow function that handles the state change for our room state.
   const roomHandler = (room) => {
     setRoom(room);
-  }; // Arrow function that handles the state change for our room state.
+  };
 
+  // Arrow function that handles closing our modal.
   const handleModalClose = () => {
     setModalOpen(false);
-  }; // Arrow function that handles closing our modal.
+  };
 
+  // Arrow function that handles opening our modal and setting the modals options.
   const handleModalOpen = (options) => {
     setModalOptions(options);
     setModalOpen(true);
-  }; // Arrow function that handles opening our modal and setting the modals options.
+  };
 
+  // Handles changes of our room values needed for creating a new room.
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
-  }; // Handles changes of our room values needed for creating a new room.
+  };
 
+  // Arrow function that handles the submission of our modal forms.
   const handleSubmit = (event) => {
     event.preventDefault();
-    boundRoomCreation();
-  }; // Arrow function that handles the submission of our modal forms.
+    if (event.target.id === "members") {
+      boundAddMember();
+      handleModalClose();
+    } else {
+      boundRoomCreation();
+      handleModalClose();
+    }
+    setValues({ users: [] });
+  };
 
   /**
    * Checking if we have a uid from our firebase auth object and returns our lobby ui
@@ -103,7 +148,7 @@ const Lobby = () => {
         <main className={classes.content}>
           <div className={classes.toolbar} />
           {room != null ? (
-            <Room room={room} />
+            <Room room={room} handleModalOpen={handleModalOpen} />
           ) : (
             <Fragment>
               {" "}
@@ -127,12 +172,17 @@ const Lobby = () => {
         <CustomModal
           handleChange={handleChange}
           handleSubmit={handleSubmit}
+          itemListSubheader={modalOptions.itemListSubheader}
+          itemList={modalOptions.itemList}
           fields={modalOptions.fields}
           buttons={modalOptions.buttons}
           title={modalOptions.title}
           handleClose={handleModalClose}
           open={modalOpen}
           values={values}
+          users={users}
+          id={modalOptions.id}
+          boundRemoveMember={(userId) => boundRemoveMember(userId)}
         />
       </div>
     );

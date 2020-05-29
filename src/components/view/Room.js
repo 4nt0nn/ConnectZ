@@ -133,7 +133,7 @@ const Room = (props) => {
    * Arrow function that handles updating our message state variable.
    * @param {object} event - Containing the event of the message input field
    */
-  const handleChange = (event) => {
+  const handleChange = (props) => (event) => {
     setMessage(event.target.value);
   };
 
@@ -165,7 +165,38 @@ const Room = (props) => {
    * from the room.
    */
   const handleUserList = () => {
-    console.log("This should open a list of the users in the room");
+    props.handleModalOpen({
+      id: "members",
+      title: `Användare i #${props.room.title}`,
+      itemList: users.filter(
+        (user, index) => user.id === props.room.users[index]
+      ),
+      itemListSubheader: "You are alone in this room...",
+      fields: [
+        {
+          id: "users",
+          select: true,
+          options: users.filter(
+            (user, index) =>
+              user.id !== auth.uid && user.id !== props.room.users[index]
+          ),
+        },
+      ],
+      buttons: [
+        {
+          text: "Lägg till",
+          type: "submit",
+          color: "primary",
+          abort: false,
+        },
+        {
+          text: "Stäng",
+          type: "reset",
+          color: "secondary",
+          abort: true,
+        },
+      ],
+    });
   };
 
   /**

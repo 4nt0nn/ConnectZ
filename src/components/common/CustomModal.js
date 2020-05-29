@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useSelector } from "react-redux";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   Button,
@@ -14,7 +15,16 @@ import {
   Select,
   Chip,
   MenuItem,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  ListSubheader,
 } from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
 import clsx from "clsx";
 
 /**
@@ -56,10 +66,10 @@ const useStyles = makeStyles((theme) => ({
 /**
  * Function for returning the styles of our user chips.
  */
-const getStyles = (name, personName, theme) => {
+const getStyles = (name, users, theme) => {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      users.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
@@ -85,7 +95,8 @@ const MenuProps = {
 const CustomModal = (props) => {
   const classes = useStyles(); // variable containing our style object.
   const theme = useTheme(); // variable containing our theme object.
-
+  const listIncluded = Boolean(props.itemList); // Used to check if a list is included in the props.
+  const auth = useSelector((state) => state.firebase.auth); // variable containing our auth object from firebase
   return (
     <Modal
       aria-labelledby={"transition-modal-title"}
@@ -102,7 +113,41 @@ const CustomModal = (props) => {
       <Fade in={props.open}>
         <div className={classes.paper}>
           <h2 id={"transition-modal-title"}>{props.title}</h2>
+          {listIncluded ? (
+            <List
+              subheader={
+                <ListSubheader component={"div"} id={"nested-list-subheader"}>
+                  {props.itemList.length > 0 ? "" : props.itemListSubheader}
+                </ListSubheader>
+              }
+            >
+              {props.itemList.map((user) => (
+                <ListItem key={user.id}>
+                  <ListItemAvatar>
+                    <Avatar alt={user.name} src={user.imageUrl} />
+                  </ListItemAvatar>
+                  <ListItemText primary={user.name} />
+                  <ListItemSecondaryAction>
+                    {user.id !== auth.uid ? (
+                      <IconButton
+                        onClick={() => props.boundRemoveMember(user.id)}
+                        edge={"end"}
+                        aria-label={"delete"}
+                      >
+                        <DeleteIcon color={"secondary"} />
+                      </IconButton>
+                    ) : (
+                      ""
+                    )}
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            ""
+          )}
           <form
+            id={props.id}
             onSubmit={props.handleSubmit}
             className={classes.root}
             noValidate
@@ -127,10 +172,12 @@ const CustomModal = (props) => {
                     input={<Input id={"select-multiple-chip"} />}
                     renderValue={(selected) => (
                       <div className={classes.chips}>
-                        {props.values.users.map((value) => (
+                        {selected.map((value) => (
                           <Chip
-                            key={value.id}
-                            label={value.name}
+                            key={value}
+                            label={
+                              props.users.find((user) => user.id === value).name
+                            }
                             className={classes.chip}
                           />
                         ))}
@@ -141,12 +188,8 @@ const CustomModal = (props) => {
                     {field.options.map((option) => (
                       <MenuItem
                         key={option.id}
-                        value={{ id: option.id, name: option.name }}
-                        style={getStyles(
-                          option.name,
-                          props.values.users,
-                          theme
-                        )}
+                        value={option.id}
+                        style={getStyles(option, props.values.users, theme)}
                       >
                         {option.name}
                       </MenuItem>

@@ -10,10 +10,14 @@ import {
   Collapse,
   Button,
   Icon,
+  Avatar,
 } from "@material-ui/core";
+import AvatarGroup from "@material-ui/lab/AvatarGroup";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import StarBorder from "@material-ui/icons/StarBorder";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
 import { useFirestoreConnect } from "react-redux-firebase";
@@ -55,6 +59,13 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+  },
+  memberAvatars: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+  },
+  avatarGroup: {
+    margin: theme.spacing(1),
   },
 }));
 
@@ -110,6 +121,7 @@ const NavDrawer = (props) => {
             <MeetingRoomIcon />
           </ListItemIcon>
           <ListItemText primary={"Rooms"} />
+          {openRooms ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
       </List>
       <Collapse in={openRooms} timeout="auto" unmountOnExit>
@@ -119,6 +131,7 @@ const NavDrawer = (props) => {
             className={classes.nested}
             onClick={() =>
               props.handleModalOpen({
+                id: "creation",
                 title: "Skapa nytt rum",
                 fields: [
                   { id: "title", icon: "local_offer", select: false },
@@ -130,7 +143,7 @@ const NavDrawer = (props) => {
                 ],
                 buttons: [
                   {
-                    text: "Lägg till",
+                    text: "Add",
                     type: "submit",
                     color: "primary",
                     abort: false,
@@ -157,14 +170,26 @@ const NavDrawer = (props) => {
           {rooms &&
             rooms.map((room) => (
               <ListItem
+                disabled={!room.users.includes(auth.uid)}
                 key={room.id}
                 button
                 className={classes.nested}
                 onClick={() => props.toggleRoom(room)}
               >
-                <ListItemIcon>
-                  <StarBorder />
-                </ListItemIcon>
+                <AvatarGroup className={classes.avatarGroup} max={4}>
+                  {users &&
+                    users.map((user) =>
+                      room.users.includes(user.id) ? (
+                        <Avatar
+                          className={classes.memberAvatars}
+                          alt={user.name}
+                          src={user.imageUrl}
+                        />
+                      ) : (
+                        ""
+                      )
+                    )}
+                </AvatarGroup>
                 <ListItemText primary={`#${room.title}`} />
               </ListItem>
             ))}
@@ -177,6 +202,7 @@ const NavDrawer = (props) => {
             <PeopleAltIcon />
           </ListItemIcon>
           <ListItemText primary={"Users"} />
+          {openUsers ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
       </List>
       <Collapse in={openUsers} timeout="auto" unmountOnExit>
@@ -186,6 +212,7 @@ const NavDrawer = (props) => {
             className={classes.nested}
             onClick={() =>
               props.handleModalOpen({
+                id: "creation",
                 title: "Ange ny användare",
                 fields: [{ id: "email", icon: "email", select: false }],
                 buttons: [
@@ -218,7 +245,11 @@ const NavDrawer = (props) => {
             users.map((user) => (
               <ListItem key={user.id} button className={classes.nested}>
                 <ListItemIcon>
-                  <StarBorder />
+                  <Avatar
+                    className={classes.memberAvatars}
+                    alt={user.name}
+                    src={user.imageUrl}
+                  />
                 </ListItemIcon>
                 <ListItemText primary={user.name} />
               </ListItem>
