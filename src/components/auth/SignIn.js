@@ -46,22 +46,35 @@ const useStyles = makeStyles((theme) => ({
 
 /**
  * Functional component used to display the
- * sign in form.
+ * sign in form and handle the logic regarding
+ * entering credentials and dispatching the "tryToAuthenticate" actions.
  */
 const SignIn = () => {
-  const classes = useStyles();
-  const [credentials, setCredentials] = useState({});
-  const dispatch = useDispatch();
-  const firebase = useFirebase();
-  const auth = useSelector((state) => state.firebase.auth);
+  const classes = useStyles(); // Variable containing our styles object.
+  const [credentials, setCredentials] = useState({}); // credentials state that will hold the information the user types in the form.
+  const dispatch = useDispatch(); // Function used to dispatch actions.
+  const firebase = useFirebase(); // Variable containing our firebase instance.
+  const auth = useSelector((state) => state.firebase.auth); // Variable containing our auth state object.
 
+  /**
+   * Arrow function that is used to bind our dispatch function
+   * for trying to authenticate.
+   */
   const boundSignInHandler = () =>
     dispatch(tryToAuthenticate(firebase, credentials));
 
+  /**
+   * Arrow function for handling changes to our form.
+   * @param {object} e - Containing our event object.
+   */
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.id]: e.target.value });
   };
 
+  /**
+   * Arrow function for handling submission of our form.
+   * @param {object} e - Containing our event object.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
     boundSignInHandler();

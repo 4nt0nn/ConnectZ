@@ -17,6 +17,9 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 
+/**
+ * Function for returning the styles object.
+ */
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -50,17 +53,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function getStyles(name, personName, theme) {
+/**
+ * Function for returning the styles of our user chips.
+ */
+const getStyles = (name, personName, theme) => {
   return {
     fontWeight:
       personName.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
-}
+};
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
+const ITEM_HEIGHT = 48; // Select dropdown item heights.
+const ITEM_PADDING_TOP = 8; // Select dropdown item padding.
+
+// variable holding our properties for the select dropdown.
 const MenuProps = {
   PaperProps: {
     style: {
@@ -70,9 +78,13 @@ const MenuProps = {
   },
 };
 
+/**
+ * Functional component for returning our modal ui with form, fields and buttons.
+ * @param {object} props - Containing our fields and buttons used for this modal/form.
+ */
 const CustomModal = (props) => {
-  const classes = useStyles();
-  const theme = useTheme();
+  const classes = useStyles(); // variable containing our style object.
+  const theme = useTheme(); // variable containing our theme object.
 
   return (
     <Modal

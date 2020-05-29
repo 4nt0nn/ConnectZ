@@ -18,8 +18,13 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
 import { useFirestoreConnect } from "react-redux-firebase";
 
-const drawerWidth = 240;
+const drawerWidth = 240; // The drawer width needed for calculating the width of the appbar.
 
+/**
+ * Styling variable which calls a function
+ * makeStyles that returns a object with
+ * js syntax styling.
+ */
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -53,28 +58,45 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Functional component responsible for displaying
+ * the drawer navigation bar with users and rooms dropdown.
+ */
 const NavDrawer = (props) => {
-  const { window } = props;
-  const classes = useStyles();
-  const theme = useTheme();
-  const [openUsers, setOpenUsers] = useState(false);
-  const [openRooms, setOpenRooms] = useState(false);
+  const { window } = props; // Object destructuring of the window object from the props object.
+  const classes = useStyles(); // variable containing our style object.
+  const theme = useTheme(); // variable containing our theme object.
+  const [openUsers, setOpenUsers] = useState(false); // Dropdown state for our users dropdown which shows the list of users if set to true.
+  const [openRooms, setOpenRooms] = useState(false); // Dropdown state for our rooms dropdown which shows the list of rooms if set to true.
 
-  const rooms = useSelector((state) => state.firestore.ordered.rooms);
-  const users = useSelector((state) => state.firestore.ordered.users);
-  const auth = useSelector((state) => state.firebase.auth);
+  const rooms = useSelector((state) => state.firestore.ordered.rooms); // Variable containing our list of rooms fetched from our firestore state.
+  const users = useSelector((state) => state.firestore.ordered.users); // Variable containing our list of users fetched from our firestore state.
+  const auth = useSelector((state) => state.firebase.auth); // Variable containing our auth object fetched from the firebase auth state.
 
+  /**
+   * React hook that automatically listens/unListens to provided Cloud Firestore paths.
+   */
   useFirestoreConnect(() => [
     { collection: process.env.REACT_APP_COLLECTION_TWO },
   ]);
+
+  /**
+   * React hook that automatically listens/unListens to provided Cloud Firestore paths.
+   */
   useFirestoreConnect(() => [
     { collection: process.env.REACT_APP_COLLECTION_ONE },
   ]);
 
+  /**
+   * Arrow function for opening/closing the user list dropdown.
+   */
   const handleUserList = () => {
     setOpenUsers(!openUsers);
   };
 
+  /**
+   * Arrow function for opening/closing the room list dropdown.
+   */
   const handleRoomList = () => {
     setOpenRooms(!openRooms);
   };

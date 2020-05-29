@@ -29,6 +29,11 @@ import {
 import { tryToSendMessage } from "../../store/action/event";
 import Video from "./Video";
 
+/**
+ * Styling variable which calls a function
+ * makeStyles that returns a object with
+ * js syntax styling.
+ */
 const useStyles = makeStyles((theme) => ({
   margin: {
     margin: theme.spacing(1),
@@ -80,17 +85,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Functional component for displaying our room ui and handling
+ * logic arround chat and calls.
+ * @param {object} props - Containing the selected room.
+ */
 const Room = (props) => {
-  const [message, setMessage] = useState("");
-  const [video, setVideo] = useState(false);
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const firestore = useFirestore();
-  const firebase = useFirebase();
-  const events = useSelector((state) => state.firestore.ordered.events);
-  const users = useSelector((state) => state.firestore.ordered.users);
-  const auth = useSelector((state) => state.firebase.auth);
+  const [message, setMessage] = useState(""); // Message state varaible used for holding the text of the message.
+  const [video, setVideo] = useState(false); // Video state variable used for toggling the video window.
+  const classes = useStyles(); // variable containing our style object.
+  const dispatch = useDispatch(); // variable containing the dispatch function
+  const firestore = useFirestore(); // variable containing our instance of firestore.
+  const firebase = useFirebase(); // variable containing our instance of frebase.
+  const events = useSelector((state) => state.firestore.ordered.events); // variable containing our list of events for a specific room fetched from firestor.
+  const users = useSelector((state) => state.firestore.ordered.users); // varaible containing our list of users fetched from firestore.
+  const auth = useSelector((state) => state.firebase.auth); // variable containing our auth state object from firebase.
 
+  /**
+   * React hook that automatically listens/unListens to provided Cloud Firestore paths.
+   * used in this context to fetch the events of a specific room.
+   */
   useFirestoreConnect([
     {
       collection: process.env.REACT_APP_COLLECTION_TWO,
@@ -100,35 +114,66 @@ const Room = (props) => {
     },
   ]);
 
+  /**
+   * React hook that automatically listens/unListens to provided Cloud Firestore paths.
+   * used in this context to fetch the users.
+   */
   useFirestoreConnect(() => [
     { collection: process.env.REACT_APP_COLLECTION_ONE },
   ]);
 
+  /**
+   * Arrow function used to bind the dispatch of
+   * the actions for trying to send a message.
+   */
   const boundAddMessage = () =>
     dispatch(tryToSendMessage(firebase, firestore, message, props.room.id));
 
-  const handleChange = (prop) => (event) => {
+  /**
+   * Arrow function that handles updating our message state variable.
+   * @param {object} event - Containing the event of the message input field
+   */
+  const handleChange = (event) => {
     setMessage(event.target.value);
   };
 
+  /**
+   * Arrow function that handles the submission of the message.
+   */
   const handleSubmit = () => {
     boundAddMessage();
     setMessage("");
   };
 
+  /**
+   * Arrow function for handling uploading a file
+   * in the chat.
+   */
   const handleFileUpload = () => {
     console.log("This should open a file selection window");
   };
 
+  /**
+   * Arrow function for opening or closing the videosession window.
+   */
   const handleNewVideoSession = () => {
     setVideo(!video);
   };
 
+  /**
+   * Arrow function for handling the list of users and adding or removing a user
+   * from the room.
+   */
   const handleUserList = () => {
     console.log("This should open a list of the users in the room");
   };
 
-  const getUserAndMessage = (message) => {
+  /**
+   * Arrow function that handles returning the avatar of the user for
+   * a specific message.
+   * @param {object} message - Containing the message text, time and user.
+   */
+  const getUserOfMessage = (message) => {
     let user = users.find((user) => user.id === message.user);
     return <Avatar alt={user.name} src={user.imageUrl} />;
   };
@@ -164,7 +209,7 @@ const Room = (props) => {
                             : classes.otherMessageWrapper
                         }
                       >
-                        {users ? getUserAndMessage(message) : ""}
+                        {users ? getUserOfMessage(message) : ""}
                         <Paper
                           className={classes.messageBubble}
                           style={

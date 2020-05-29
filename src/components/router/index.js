@@ -3,6 +3,10 @@ import { Switch, Route } from "react-router-dom";
 import SignIn from "../auth/SignIn";
 import Lobby from "../view/Lobby";
 
+/**
+ * Functional component for creating our
+ * router and declaring what routes leads to what components.
+ */
 const Router = () => {
   return (
     <Switch>

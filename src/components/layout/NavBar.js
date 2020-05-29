@@ -107,30 +107,53 @@ const NavBar = (props) => {
   const classes = useStyles(); // variable containing our style object.
   const dispatch = useDispatch(); // variable containing the dispatch function
   const firebase = useFirebase(); // variable containing our instance of frebase.
-  const profile = useSelector((state) => state.firebase.profile);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const profile = useSelector((state) => state.firebase.profile); // Variable holding our profile object.
+  const [anchorEl, setAnchorEl] = useState(null); // Anchor element state used to set our anchor element.
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null); // Mobile anchor element state used to set our mobile anchor element.
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMenuOpen = Boolean(anchorEl); // Variable that returns true or false depending if there is an anchor element set.
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl); // Variable that returns true or false depending if there is a mobile anchor element.
 
+  /**
+   * Arrow function that handles setting the anchor element.
+   * @param {object} event - Containing the event object.
+   */
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  /**
+   * Arrow function that handles closing the mobile menu
+   * and sets the mobile anchor element to null.
+   */
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
+  /**
+   * Arrow function that handles closing the menu
+   * and setting both the anchor element to null
+   * and calling the function for closing the mobile menu.
+   */
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
   };
 
+  /**
+   * Arrow function for handling openining the mobile menu
+   * and setting the mobile anchor element to the current target of
+   * the event.
+   * @param {object} event - Containing the event object
+   */
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  /**
+   * Arrow function that binds the dispatch function
+   * that calls tryToSignOut actions.
+   */
   const boundHandleSignOut = () => dispatch(tryToSignOut(firebase));
 
   const menuId = "primary-search-account-menu";
