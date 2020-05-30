@@ -7,7 +7,6 @@ import * as Types from "./types";
  */
 export const tryToAuthenticate = (firebase, credentials) => {
   return (dispatch, getState) => {
-    console.log("test");
     dispatch({ type: Types.TRY_TO_SIGN_IN });
     firebase
       .login({ email: credentials.email, password: credentials.password })

@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     justifyContent: "center",
     width: theme.spacing(50),
-    height: theme.spacing(50),
+    height: theme.spacing(40),
   },
 }));
 

@@ -2,7 +2,6 @@ import React, { Fragment, useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Typography,
-  Divider,
   FormControl,
   InputLabel,
   InputAdornment,
@@ -14,6 +13,7 @@ import {
   Avatar,
   Fab,
   ButtonGroup,
+  Popover,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import ChatIcon from "@material-ui/icons/Chat";
@@ -159,7 +159,7 @@ const Room = (props) => {
 
   /**
    * Arrow function for handling uploading a file
-   * in the chat.
+   * in the chat. TO BE IMPLEMENTED!
    */
   const handleFileUpload = () => {
     console.log("This should open a file selection window");
@@ -263,7 +263,7 @@ const Room = (props) => {
   useEffect(() => {
     setTimeout(() => {
       scrollToBottom();
-    }, 200);
+    }, 1000);
   }, [chatMessages, events]);
 
   return (
@@ -355,6 +355,7 @@ const Room = (props) => {
               aria-label="add"
               className={classes.margin}
               onClick={handleFileUpload}
+              disabled={true}
             >
               <AddPhotoAlternateIcon />
             </Fab>
