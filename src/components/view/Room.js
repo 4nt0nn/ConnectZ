@@ -83,6 +83,11 @@ const useStyles = makeStyles((theme) => ({
   roomTitle: {
     textAlign: "center",
   },
+  messageTime: {
+    fontSize: 12,
+    fontStyle: "italic",
+    opacity: 0.8,
+  },
 }));
 
 /**
@@ -155,8 +160,22 @@ const Room = (props) => {
 
   /**
    * Arrow function for opening or closing the videosession window.
+   * and submitting a new event message
    */
-  const handleNewVideoSession = () => {
+  const handleNewVideoSession = (text) => {
+    setVideo(!video);
+    setMessage(text);
+  };
+
+  const handleClosingVideo = () => {
+    dispatch(
+      tryToSendMessage(
+        firebase,
+        firestore,
+        "Left the video session",
+        props.room.id
+      )
+    );
     setVideo(!video);
   };
 
@@ -209,6 +228,18 @@ const Room = (props) => {
     return <Avatar alt={user.name} src={user.imageUrl} />;
   };
 
+  const getMessageDate = (dateNumber) => {
+    let d = new Date(dateNumber);
+    return (
+      <div>
+        <br />
+        <span className={classes.messageTime}>
+          {d.toLocaleTimeString().substr(0, 5)} {d.toLocaleDateString()}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <Fragment>
       <Typography className={classes.roomTitle} variant={"h4"} component={"h6"}>
@@ -257,6 +288,7 @@ const Room = (props) => {
                           elevation={2}
                         >
                           {message.content}
+                          {getMessageDate(message.sentAt)}
                         </Paper>
                       </div>
                     </Slide>
@@ -274,7 +306,7 @@ const Room = (props) => {
             color="primary"
             aria-label="video"
             className={classes.margin}
-            onClick={handleNewVideoSession}
+            onClick={() => handleNewVideoSession("Joined a video session")}
           >
             <VideocamIcon />
           </Fab>
@@ -326,7 +358,12 @@ const Room = (props) => {
         </FormControl>
       </Grid>
       {video ? (
-        <Video users={users} handleCancel={handleNewVideoSession} />
+        <Video
+          users={users}
+          handleSubmit={handleSubmit}
+          handleCancel={handleNewVideoSession}
+          handleClosingVideo={handleClosingVideo}
+        />
       ) : null}
     </Fragment>
   );

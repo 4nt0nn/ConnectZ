@@ -120,6 +120,7 @@ const Video = (props) => {
         handleStreamAdded();
         handleStreamSubscription();
         handleStreamRemoved();
+        props.handleSubmit();
       },
       (err) => console.log("Error when initializing the channel: ", err)
     );
@@ -152,7 +153,6 @@ const Video = (props) => {
    * stopping and closing our local stream
    */
   const handleLeavingChannel = () => {
-    console.log(rtc.client);
     rtc.client.leave(
       () => {
         rtc.localStream.stop();
@@ -165,8 +165,7 @@ const Video = (props) => {
             (stream) => stream.getId() !== id
           );
         }
-        console.log("Left the channel successfully!");
-        props.handleCancel();
+        props.handleClosingVideo();
       },
       (err) => {
         console.log("Error when leaving the channel: ", err);
@@ -191,9 +190,15 @@ const Video = (props) => {
         rtc.localStream.play("local_stream", { fit: "cover" });
         handleStreamPublication(rtc.localStream);
         let video = rtc.localStream.getVideoTrack();
+        let audio = rtc.localStream.getAudioTrack();
         if (video === undefined) {
           rtc.localStream.disableVideo();
           setHasVideo(false);
+          console.log("Video connection failed");
+        }
+        if (audio === undefined) {
+          rtc.localStream.disableAudio();
+          console.log("Audio connection failed");
         }
       },
       (err) => {
