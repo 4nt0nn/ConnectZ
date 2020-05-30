@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 2000,
     padding: theme.spacing(2),
+    height: "100vh",
   },
   lobbyTitle: {
     textAlign: "center",

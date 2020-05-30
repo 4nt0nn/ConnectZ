@@ -15,7 +15,7 @@ import CloseIcon from "@material-ui/icons/Close";
 const useStyles = makeStyles((theme) => ({
   videoWindow: {
     color: "#ffffff",
-    width: "33%",
+    width: "420px",
     height: "45vh",
     backgroundColor: "#000000",
     position: "absolute",

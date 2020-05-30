@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Typography,
@@ -45,8 +45,8 @@ const useStyles = makeStyles((theme) => ({
     width: "15ch",
   },
   chatContainer: {
-    height: "71vh",
-    width: "60%",
+    height: "59vh",
+    width: "75%",
     padding: theme.spacing(1),
     overflow: "hidden",
     overflowY: "scroll",
@@ -88,6 +88,12 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     opacity: 0.8,
   },
+  messagingContainer: {
+    backgroundColor: "#fafafa",
+  },
+  chatGrid: {
+    height: "85%",
+  },
 }));
 
 /**
@@ -105,6 +111,7 @@ const Room = (props) => {
   const events = useSelector((state) => state.firestore.ordered.events); // variable containing our list of events for a specific room fetched from firestor.
   const users = useSelector((state) => state.firestore.ordered.users); // varaible containing our list of users fetched from firestore.
   const auth = useSelector((state) => state.firebase.auth); // variable containing our auth state object from firebase.
+  const chatMessages = useRef(null); // variable that will hold a referens to our chat messages container.
 
   /**
    * React hook that automatically listens/unListens to provided Cloud Firestore paths.
@@ -167,6 +174,10 @@ const Room = (props) => {
     setMessage(text);
   };
 
+  /**
+   * Arrow function that handles sending a message when a user leaves the
+   * video session.
+   */
   const handleClosingVideo = () => {
     dispatch(
       tryToSendMessage(
@@ -228,6 +239,11 @@ const Room = (props) => {
     return <Avatar alt={user.name} src={user.imageUrl} />;
   };
 
+  /**
+   * Arrow function that handles formatting of the ISO date string and returns a ui
+   * representation of the time a message was sent.
+   * @param {String} dateNumber - Date as ISO string to be converted to date and time.
+   */
   const getMessageDate = (dateNumber) => {
     let d = new Date(dateNumber);
     return (
@@ -240,16 +256,27 @@ const Room = (props) => {
     );
   };
 
+  const scrollToBottom = () => {
+    chatMessages.current.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      scrollToBottom();
+    }, 200);
+  }, [chatMessages, events]);
+
   return (
     <Fragment>
       <Typography className={classes.roomTitle} variant={"h4"} component={"h6"}>
         # {props.room.title}
       </Typography>
       <Grid
+        className={classes.chatGrid}
         container
         direction={"column"}
         justify={"center"}
-        alignItems={video ? "flex-start" : "center"}
+        alignItems={"center"}
       >
         <div className={classes.chatContainer}>
           {events &&
@@ -265,6 +292,7 @@ const Room = (props) => {
                       mountOnEnter
                     >
                       <div
+                        ref={chatMessages}
                         className={
                           message.user === auth.uid
                             ? classes.myMessageWrapper
@@ -296,66 +324,73 @@ const Room = (props) => {
                 : ""
             )}
         </div>
-        <ButtonGroup
-          variant="contained"
-          aria-label="contained primary button group"
-          disableElevation
-        >
-          <Fab
-            size="medium"
-            color="primary"
-            aria-label="video"
+        <div className={classes.messagingContainer}>
+          <ButtonGroup
+            variant="contained"
+            aria-label="contained primary button group"
+            disableElevation
             className={classes.margin}
-            onClick={() => handleNewVideoSession("Joined a video session")}
           >
-            <VideocamIcon />
-          </Fab>
-          <Fab
-            size="medium"
-            color="primary"
-            aria-label="add"
-            className={classes.margin}
-            onClick={handleUserList}
+            <Fab
+              size="medium"
+              color="primary"
+              aria-label="video"
+              className={classes.margin}
+              onClick={() => handleNewVideoSession("Joined a video session")}
+            >
+              <VideocamIcon />
+            </Fab>
+            <Fab
+              size="medium"
+              color="primary"
+              aria-label="add"
+              className={classes.margin}
+              onClick={handleUserList}
+            >
+              <PeopleIcon />
+            </Fab>
+            <Fab
+              size="medium"
+              color="primary"
+              aria-label="add"
+              className={classes.margin}
+              onClick={handleFileUpload}
+            >
+              <AddPhotoAlternateIcon />
+            </Fab>
+          </ButtonGroup>
+          <FormControl
+            fullWidth
+            className={classes.messagingContainer}
+            variant={"outlined"}
           >
-            <PeopleIcon />
-          </Fab>
-          <Fab
-            size="medium"
-            color="primary"
-            aria-label="add"
-            className={classes.margin}
-            onClick={handleFileUpload}
-          >
-            <AddPhotoAlternateIcon />
-          </Fab>
-        </ButtonGroup>
-        <FormControl fullWidth className={classes.margin} variant={"outlined"}>
-          <InputLabel htmlFor={"message"}>Message</InputLabel>
-          <OutlinedInput
-            id={"message"}
-            value={message}
-            onChange={handleChange("message")}
-            startAdornment={
-              <InputAdornment position={"start"}>
-                <ChatIcon />
-              </InputAdornment>
-            }
-            endAdornment={
-              <InputAdornment position={"end"}>
-                <IconButton
-                  onClick={handleSubmit}
-                  aria-label={"toggle password visibility"}
-                  edge={"end"}
-                  disabled={message !== "" ? false : true}
-                  color={"primary"}
-                >
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-            labelWidth={60}
-          />
-        </FormControl>
+            <InputLabel htmlFor={"message"}>Message</InputLabel>
+            <OutlinedInput
+              id={"message"}
+              value={message}
+              onChange={handleChange("message")}
+              startAdornment={
+                <InputAdornment position={"start"}>
+                  <ChatIcon />
+                </InputAdornment>
+              }
+              endAdornment={
+                <InputAdornment position={"end"}>
+                  <IconButton
+                    onClick={handleSubmit}
+                    aria-label={"toggle password visibility"}
+                    edge={"end"}
+                    disabled={message !== "" ? false : true}
+                    color={"primary"}
+                  >
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+              labelWidth={60}
+            />
+          </FormControl>
+        </div>
       </Grid>
       {video ? (
         <Video
