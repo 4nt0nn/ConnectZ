@@ -42,6 +42,17 @@ The project packages include, for example:</br>
 - React-router
 - React-router-dom
 
+### Using environment variables
+
+In order to get things running, you will need to (in your newly created Firebase project) add a new
+web application and generate a JSON object "firebaseConfig" which will hold your project settings, api key etc.
+Follow the example.env and add a new .env file in the project and paste all corresponding information in the file
+and under the correct key. Setup cloud firestore and add the collections that you think suits the application best.
+For example, "events", "users" and "rooms".
+
+The same goes for agora. Start a new project and generate your application id, channel name and a token and paste
+these in their corresponding location in the .env file.
+
 ### Starting the application
 
 The application can be started by entering the following in the project directory:</br>
